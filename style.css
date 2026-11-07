@@ -1,0 +1,339 @@
+/* ================================================================
+   MUKKURI / desktop home
+   01 기본값  02 배경  03 메뉴  04 바탕화면  05 썸네일
+   06 문서 창  07 전체 읽기  08 모바일  09 접근성·인쇄
+   app.js로 배경 전환·드래그·팝업을 확장합니다. 외부 의존성은 없습니다.
+   ================================================================ */
+
+/* 01. 기본값 */
+:root {
+  --canvas: #000;
+  --paper: #faf9f6;
+  --ink: #202020;
+  --muted: #62625d;
+  --line: #deded8;
+  --link: #174fa8;
+  --folder-light: #6bd6ff;
+  --folder-dark: #22afeb;
+  --font: Arial, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+}
+* { box-sizing: border-box; }
+html { min-width: 280px; background: var(--canvas); scroll-behavior: auto; }
+body { margin: 0; background: var(--canvas); color: #fff; font-family: var(--font); font-size: 14px; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button, summary { font: inherit; }
+button, a, summary { -webkit-tap-highlight-color: transparent; }
+a:focus-visible, summary:focus-visible { outline: 3px solid #83d8ff; outline-offset: 5px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; border: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.skip-link { position: fixed; top: -80px; left: 16px; padding: 13px 18px; background: #fff; color: #111; z-index: 100; }
+.skip-link:focus { top: 14px; }
+
+/* 02. 중앙 사진. 가장자리는 검정으로 자연스럽게 사라집니다. */
+.wallpaper { position: fixed; z-index: 0; inset: 0; pointer-events: none; background: #000; }
+ .wallpaper-frame {
+  position: absolute; width: min(1280px, 110vw); height: min(800px, 90svh);
+  left: 50%; top: 50%; transform: translate(-50%, -50%); opacity: .72;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 12%, #000e 32%, #0006 54%, transparent 74%);
+  mask-image: radial-gradient(ellipse at center, #000 12%, #000e 32%, #0006 54%, transparent 74%);
+}
+.wallpaper-slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 2.8s ease-in-out; filter: brightness(.72) saturate(.72); }
+.wallpaper-slide.is-active { opacity: 1; }
+.wallpaper-slide:nth-child(3) { object-position: center 55%; filter: brightness(.55) saturate(.6); }
+
+/* 03. 모서리 메뉴. 넓은 헤더나 큰 로고를 만들지 않습니다. */
+.desktop-menu { position: fixed; z-index: 20; top: 14px; left: 14px; right: 14px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; pointer-events: none; }
+.menu-group { display: flex; align-items: center; background: #fff; color: #0a0a0a; border-radius: 2px; padding: 3px 4px; pointer-events: auto; box-shadow: 0 1px 5px #0002; }
+.menu-group a { display: flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 10px; font-size: 14px; white-space: nowrap; }
+.menu-group a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.count { display: grid; place-items: center; background: #111; color: #fff; width: 17px; height: 17px; border-radius: 50%; font-size: 11px; }
+.desktop-footer { position: fixed; z-index: 20; bottom: 14px; left: 14px; right: 14px; display: flex; align-items: flex-end; justify-content: space-between; pointer-events: none; }
+.desktop-footer > * { pointer-events: auto; }
+.info-menu { position: relative; }
+.info-menu summary { display: grid; place-items: center; min-width: 52px; min-height: 42px; background: #111; color: #bbb; border-radius: 2px; cursor: pointer; list-style: none; }
+.info-menu summary::-webkit-details-marker { display: none; }
+.info-menu summary:hover, .info-menu[open] summary { background: #252525; color: #fff; }
+.info-panel { position: absolute; bottom: 52px; left: 0; width: min(310px, calc(100vw - 28px)); padding: 22px; background: #171717; border: 1px solid #383838; box-shadow: 0 8px 32px #0008; color: #ddd; font-size: 13px; line-height: 1.7; }
+.info-panel strong { font-size: 14px; color: #fff; }
+.info-panel p { margin: 9px 0 15px; }
+.info-panel nav { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 15px; }
+.info-panel nav a { text-decoration: underline; text-underline-offset: 4px; }
+.info-panel small { color: #aaa; font-size: 11px; }
+.index-link { min-height: 42px; display: flex; align-items: center; gap: 16px; padding: 0 12px; background: #111b; border-radius: 2px; color: #b5b5b5; font-size: 12px; }
+.index-link:hover { background: #222; color: #fff; }
+
+/* 04. 중앙의 여섯 개 오브젝트. 위치를 수정할 때 이 구역만 편집합니다. */
+.desktop { position: relative; z-index: 1; height: 100svh; min-height: 640px; }
+.scatter { position: absolute; width: min(820px, calc(100% - 48px)); height: 520px; left: 50%; top: 50%; transform: translate(-50%, -48%); }
+.desktop-item { position: absolute; display: flex; flex-direction: column; align-items: center; width: 144px; padding: 7px 4px; border: 1px solid transparent; border-radius: 5px; text-align: center; transition: background-color .16s ease, border-color .16s ease; }
+.desktop-item:hover { background: #ffffff0b; border-color: #ffffff1a; }
+.desktop-item:focus-visible { outline-offset: 2px; background: #225c8c44; }
+.file-label { display: block; font-size: 12px; font-weight: 400; line-height: 1.5; margin-top: 8px; text-shadow: 0 1px 5px #000, 0 1px 2px #000; }
+.file-badge { margin: 10px 0 -6px; padding: 2px 7px; border-radius: 10px; background: #fff; color: #222; font-size: 9px; line-height: 1.3; box-shadow: 0 1px 4px #0003; }
+.item-brand { left: 28%; top: 17%; width: 174px; }
+.item-black { left: 60%; top: 0; }
+.item-guide { left: 8%; top: 35%; width: 150px; }
+.item-knock { left: 80%; top: 41%; }
+.item-shop { left: 22%; top: 74%; width: 102px; }
+.item-work { left: 54%; top: 83%; width: 122px; }
+
+/* 05. 로고, 작품명 그래픽, 파란 폴더. 실제 상품 사진으로 교체할 때
+   .product-tile 내부를 <img>로 바꾸면 크기는 그대로 유지됩니다. */
+ .brand-sticker { display: grid; place-items: center; width: 174px; height: 78px; padding: 6px; background: #faf7ef; border: 3px solid #fff; border-radius: 8px; transform: rotate(-8deg); box-shadow: 0 5px 14px #0005; }
+.brand-sticker img { width: 100%; height: auto; display: block; }
+.item-brand .file-label { margin-top: 14px; }
+.product-tile { display: grid; place-items: center; width: 132px; height: 145px; padding: 9px; background: #f0f0ec; border: 1px solid #fff; border-radius: 6px; box-shadow: 0 5px 18px #0006; transition: transform .18s ease; }
+.tile-black { transform: rotate(-3deg); }
+.tile-knock { transform: rotate(3deg); }
+.desktop-item:hover .product-tile { transform: translateY(-3px) rotate(0); }
+.product-tile img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(2px 5px 3px #0003); }
+.guide-thumbnail { display: grid; align-content: center; justify-items: center; gap: 10px; width: 140px; height: 86px; background: #035366; border: 1px solid #96d7d955; color: #c6f0ec; border-radius: 5px; box-shadow: 0 4px 14px #0005; transform: rotate(-2deg); }
+.guide-thumbnail img { width: 100px; height: 37px; }
+.guide-caption { font-size: 6px; letter-spacing: 1.8px; font-weight: 700; }
+.folder { display: block; position: relative; width: 67px; height: 48px; margin-top: 10px; margin-bottom: 3px; background: #158ac2; border-radius: 5px; box-shadow: 0 4px 10px #0002; }
+.folder::before { content: ""; position: absolute; top: -8px; left: 0; width: 29px; height: 15px; background: #299bd0; border-radius: 5px 5px 0 0; }
+.folder::after { content: ""; position: absolute; inset: 3px 0 0; border: 1px solid #7fdcff66; border-radius: 4px; background: linear-gradient(#64d3fc, #29b5f0); box-shadow: inset 0 1px 0 #c8f0ff66; transition: transform .16s ease; }
+.desktop-item:hover .folder::after { transform: skewX(-4deg) scaleY(.95); transform-origin: bottom; }
+
+/* 06. 문서 팝업. 스크립트가 없어도 :target으로 읽을 수 있습니다. */
+.documents-anchor { height: 0; }
+.content-window { display: none; position: fixed; z-index: 40; width: min(690px, calc(100% - 48px)); max-height: calc(100svh - 120px); top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--paper); color: var(--ink); border: 1px solid #d0d0ca; border-radius: 8px; box-shadow: 0 24px 80px #000b, 0 0 0 100vmax #0005; overflow: hidden; }
+.content-window:target { display: flex; flex-direction: column; }
+.window-bar { display: flex; align-items: center; gap: 9px; min-height: 46px; padding-left: 17px; flex: 0 0 auto; background: #e9e9e5; border-bottom: 1px solid #cecec8; color: #55554f; font-size: 12px; }
+.window-bar > span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.window-close { display: grid; place-items: center; width: 46px; height: 45px; flex: 0 0 46px; margin-left: auto; color: #555; font-size: 23px; line-height: 1; }
+.window-close:hover { color: #fff; background: #b33a35; }
+.mini-folder { position: relative; width: 16px; height: 12px; border-radius: 2px; background: #47bcef; flex: 0 0 16px; }
+.mini-folder::before { content: ""; position: absolute; width: 7px; height: 3px; top: -2px; border-radius: 2px 2px 0 0; background: #289bd0; }
+.mini-file { width: 11px; height: 15px; background: #fff; border: 1px solid #999; border-radius: 1px; flex: 0 0 11px; }
+.window-body { padding: 32px 38px 36px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; line-height: 1.85; font-size: 15px; min-height: 0; }
+.window-body > :first-child { margin-top: 0; }
+.window-body > :last-child { margin-bottom: 0; }
+.window-body p { margin: 14px 0; word-break: keep-all; overflow-wrap: anywhere; }
+.document-path { font-size: 10px; letter-spacing: 1.4px; color: var(--muted); }
+.window-body h2 { font-size: clamp(24px, 3vw, 32px); line-height: 1.4; letter-spacing: -1.3px; margin: 14px 0 22px; word-break: keep-all; }
+.window-body h3 { font-size: 17px; line-height: 1.6; margin: 28px 0 9px; letter-spacing: -.4px; }
+.window-body .document-lead { font-size: 19px; font-weight: 700; line-height: 1.65; letter-spacing: -.5px; margin: 20px 0; }
+.window-body a:not(.action-link) { color: var(--link); text-decoration: underline; text-underline-offset: 4px; }
+.window-body a:focus-visible { outline-color: #115bb4; }
+.facts { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 28px 0; }
+.facts > div { display: grid; grid-template-columns: 145px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid #e8e8e2; }
+.facts > div:last-child { border-bottom: 0; }
+.facts dt { font-size: 13px; color: var(--muted); }
+.facts dd { margin: 0; font-size: 14px; }
+.window-body .document-note { font-size: 12px; line-height: 1.7; color: var(--muted); }
+.action-link { display: inline-flex; align-items: center; justify-content: space-between; gap: 20px; max-width: 100%; margin: 12px 0; padding: 12px 19px; background: #1d1e1b; color: #fff; border: 1px solid #1d1e1b; font-size: 14px; line-height: 1.6; word-break: keep-all; }
+.action-link:hover { background: #3e453c; }
+.document-links { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; }
+.game-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 25px 0; border-bottom: 1px solid var(--line); }
+.game-row h3 { margin: 4px 0; font-size: 23px; }
+.game-row p { margin: 8px 0 0; }
+.text-tag { font-size: 11px; color: var(--muted); }
+.row-number { font-family: Georgia, serif; font-size: 44px; color: #c2c2b8; }
+.steps { padding-left: 22px; }
+.steps li { padding: 7px 0 10px 7px; }
+.steps li p { margin: 4px 0; }
+.faq > div { padding: 17px 0; border-bottom: 1px solid var(--line); }
+.faq dt { font-weight: 700; }
+.faq dd { margin: 5px 0 0; color: #50514c; }
+.plain-list { padding-left: 20px; }
+.plain-list li { margin: 8px 0; }
+.work-list { padding: 0; list-style: none; margin: 25px 0; }
+.work-list li { padding: 20px 0; border-top: 1px solid var(--line); }
+.work-list li > span { font-size: 11px; color: var(--muted); }
+.work-list h3 { margin: 6px 0; }
+.work-list p { margin: 7px 0; }
+
+/* 07. 전체 문서 모드: 동일한 본문을 한 번에 읽고 인쇄할 수 있습니다. */
+.reader-heading { display: none; }
+body:has(#documents:target) .desktop { display: none; }
+body:has(#documents:target) .window-stack { position: relative; z-index: 2; padding: 95px 24px 100px; max-width: 850px; margin: 0 auto; }
+#documents:target + .window-stack .reader-heading { display: block; margin: 0 0 30px; }
+.reader-heading p { font-size: 11px; letter-spacing: 2px; color: #bbb; }
+.reader-heading h2 { font-size: 28px; margin: 10px 0 15px; }
+.reader-heading a { font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
+#documents:target + .window-stack .content-window { display: block; position: relative; top: auto; left: auto; width: 100%; max-height: none; margin-bottom: 25px; transform: none; box-shadow: 0 10px 35px #0005; }
+#documents:target + .window-stack .window-body { overflow: visible; }
+
+/* 08. 작은 화면에서도 바탕화면 형태 유지. 겹침 없이 오브젝트 재배치. */
+@media (max-width: 800px) and (min-width: 601px) {
+  .scatter { width: 590px; }
+  .item-brand { left: 27%; }
+  .item-black { left: 62%; }
+  .item-guide { left: 1%; }
+  .item-knock { left: 75%; top: 43%; }
+  .item-shop { left: 18%; top: 73%; }
+  .item-work { left: 53%; }
+}
+@media (max-width: 600px) {
+  .desktop-menu { top: 12px; left: 12px; right: 12px; gap: 10px; }
+  .menu-group { padding: 3px 2px; }
+  .menu-group a { padding: 0 8px; min-height: 36px; font-size: 12px; }
+  .count { width: 15px; height: 15px; font-size: 10px; }
+  .desktop { min-height: 650px; }
+  .wallpaper-frame { width: 100vw; height: 81svh; min-height: 550px; background-position: 60% center; opacity: .8; -webkit-mask-image: radial-gradient(ellipse at center, #000 5%, #000c 35%, transparent 74%); mask-image: radial-gradient(ellipse at center, #000 5%, #000c 35%, transparent 74%); }
+  .scatter { width: min(380px, calc(100% - 30px)); height: 490px; transform: translate(-50%, -47%); }
+  .desktop-item { width: 118px; padding: 7px 3px; }
+  .item-brand { width: 150px; left: 6%; top: 9%; }
+  .item-brand .file-label { font-size: 11px; }
+  .item-black { left: auto; right: 0; top: 0; }
+  .item-guide { left: 0; top: 36%; width: 140px; }
+  .item-knock { left: auto; right: 1%; top: 45%; }
+  .item-shop { left: 8%; top: 75%; width: 90px; }
+  .item-work { left: auto; right: 8%; top: 83%; width: 120px; }
+  .product-tile { width: 108px; height: 108px; border-radius: 7px; }
+  .book-black strong { top: 25px; font-size: 21px; }
+  .book-knock strong { top: 20px; font-size: 18px; }
+  .guide-thumbnail { width: 128px; height: 73px; }
+  .folder { width: 60px; height: 43px; }
+  .file-label { font-size: 11px; }
+  .desktop-footer { bottom: 12px; left: 12px; right: 12px; }
+  .index-link { font-size: 11px; }
+  .content-window { width: calc(100% - 24px); top: 64px; max-height: calc(100svh - 82px); transform: translateX(-50%); border-radius: 7px; }
+  .window-bar { min-height: 44px; padding-left: 13px; font-size: 11px; }
+  .window-close { height: 44px; }
+  .window-body { padding: 23px 21px 28px; font-size: 14px; }
+  .window-body h2 { font-size: 25px; letter-spacing: -1px; }
+  .window-body .document-lead { font-size: 18px; }
+  .facts > div { grid-template-columns: 105px 1fr; gap: 10px; }
+  .facts dt { font-size: 12px; }
+  .facts dd { font-size: 13px; }
+  .game-row { gap: 12px; }
+  .game-row h3 { font-size: 22px; }
+  .row-number { font-size: 32px; }
+  .action-link { font-size: 13px; padding: 11px 14px; gap: 12px; }
+  body:has(#documents:target) .window-stack { padding: 84px 12px 90px; }
+}
+@media (max-width: 350px) {
+  .menu-group a { padding: 0 6px; }
+  .scatter { width: calc(100% - 22px); }
+  .item-brand { left: 1%; width: 140px; }
+  .item-guide { left: 0; width: 130px; }
+  .guide-thumbnail { width: 120px; }
+  .window-body { padding-left: 17px; padding-right: 17px; }
+  .facts > div { grid-template-columns: 95px 1fr; }
+}
+@media (max-height: 670px) and (min-width: 601px) {
+  .desktop { min-height: 570px; }
+  .scatter { height: 440px; transform: translate(-50%, -46%); }
+}
+
+/* 09. 실제 이미지, 드래그와 세밀한 창 장식 */
+.js-only { display: none; }
+.has-js .js-only { display: flex; }
+button { color: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid #83d8ff; outline-offset: 3px; }
+.has-js .desktop-item { touch-action: none; user-select: none; cursor: grab; }
+.desktop-item img { pointer-events: none; -webkit-user-drag: none; }
+.desktop-item.is-dragging { cursor: grabbing; background: #ffffff16; border-color: #9ad8ff77; box-shadow: 0 12px 24px #0004; }
+.is-dragging, .is-dragging * { cursor: grabbing !important; user-select: none !important; }
+.desktop-settings { flex-direction: column; margin: 15px 0; padding-top: 15px; border-top: 1px solid #383838; }
+.desktop-settings button { align-self: flex-start; background: #282828; border: 1px solid #484848; padding: 9px 12px; border-radius: 3px; font-size: 12px; }
+.desktop-settings p { color: #aaa; font-size: 11px; margin-bottom: 0; }
+.scene-controls { align-items: center; gap: 3px; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); background: #111b; border: 1px solid #ffffff16; border-radius: 4px; padding: 0 5px 0 12px; height: 40px; color: #b9bcb9; }
+.scene-number { font-family: monospace; font-size: 10px; letter-spacing: 1px; padding-right: 6px; }
+.scene-controls button { width: 32px; min-height: 36px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 2px; background: transparent; font-size: 13px; }
+.scene-controls button:hover { background: #ffffff13; color: #fff; }
+.scene-controls button:disabled { opacity: .5; cursor: default; }
+.window-backdrop { position: fixed; z-index: 30; inset: 0; background: #0006; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.window-backdrop[hidden] { display: none; }
+body.has-window { overflow: hidden; }
+.content-window { width: min(750px, calc(100% - 56px)); max-height: calc(100svh - 96px); border: 1px solid #888b8d; border-radius: 7px; box-shadow: 0 26px 100px #000b, 0 0 0 1px #ffffff18; outline: none; }
+.content-window::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: #60a6d8; z-index: 1; }
+.content-window.is-open { display: flex; flex-direction: column; animation: window-appear .2s ease-out; }
+.window-bar { min-height: 44px; padding-left: 15px; gap: 9px; background: linear-gradient(#fbfbfa, #e6e6e2); border-bottom: 1px solid #bec1c2; color: #363a3b; font-weight: 600; letter-spacing: .1px; user-select: none; }
+.has-js .window-bar { cursor: grab; touch-action: none; }
+.window-moving .window-bar { cursor: grabbing; }
+.window-bar > span:nth-child(2) { margin-right: auto; }
+.window-close { flex: 0 0 43px; width: 43px; height: 43px; margin-left: 0; font-size: 24px; font-weight: 400; border-left: 1px solid #c9cccb; }
+.window-maximize { width: 43px; height: 43px; flex: 0 0 43px; border: 0; border-left: 1px solid #c9cccb; background: transparent; align-items: center; justify-content: center; padding: 0; margin-right: -9px; font-size: 19px; font-weight: 400; }
+.window-maximize:hover { background: #d0dce3; }
+.window-close:hover { background: #bd4841; }
+.window-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 15px; min-height: 33px; flex: 0 0 auto; background: #f1f1ed; border-bottom: 1px solid #d9dad5; color: #6d716c; font-size: 10px; }
+.toolbar-location { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+.toolbar-location > span { color: #b6bab5; padding: 0 7px; }
+.toolbar-mode { flex: 0 0 auto; font-family: monospace; font-size: 9px; letter-spacing: .8px; color: #888d85; }
+.window-body { padding: 30px 40px 38px; background: #faf9f5; scrollbar-color: #afb4ad #efeee8; }
+.window-body h2 { margin: 10px 0 20px; letter-spacing: -1.2px; }
+.window-status { display: flex; justify-content: space-between; gap: 12px; flex: 0 0 auto; padding: 9px 15px; min-height: 32px; border-top: 1px solid #d1d4cc; background: #eeeee8; color: #797e75; font-size: 9px; letter-spacing: .2px; }
+.window-status > span:first-child { display: flex; align-items: center; gap: 6px; font-family: monospace; white-space: nowrap; }
+.window-status i { width: 5px; height: 5px; background: #8b9c83; border-radius: 50%; }
+.window-hint { text-align: right; }
+.content-window.is-maximized { width: calc(100vw - 40px); max-height: calc(100svh - 40px); height: calc(100svh - 40px); left: 20px; top: 20px; transform: none; }
+.content-window.is-maximized .window-body { padding-left: max(32px, calc((100vw - 800px) / 2)); padding-right: max(32px, calc((100vw - 800px) / 2)); }
+.product-preview { position: relative; display: flex; justify-content: center; margin: 23px 0 28px; padding: 24px 24px 48px; height: 275px; background: #e9e9e2; border: 1px solid #d6d9d2; overflow: hidden; }
+.preview-black { background: radial-gradient(ellipse at 55% 42%, #e9edf0, #c5d0d7); }
+.preview-knock { background: radial-gradient(ellipse at 55% 42%, #e8ebe5, #c2cfc6); }
+.product-preview::before, .product-preview::after { content: '+'; position: absolute; color: #7c8a8680; font-family: monospace; font-size: 17px; top: 8px; }
+.product-preview::before { left: 10px; }.product-preview::after { right: 10px; }
+.product-preview img { width: auto; height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(10px 10px 6px #1a202035); }
+.preview-index { position: absolute; top: 17px; left: 28px; color: #5b6a6a; font-family: monospace; letter-spacing: 1.2px; font-size: 9px; writing-mode: vertical-rl; }
+.product-preview figcaption { position: absolute; display: flex; align-items: center; justify-content: space-between; bottom: 0; left: 0; right: 0; min-height: 35px; padding: 8px 13px; color: #475855; background: #ffffff55; border-top: 1px solid #7b959335; font-size: 10px; }
+.product-preview figcaption span { font-family: monospace; font-size: 9px; letter-spacing: 1px; }
+.game-thumbnail { flex: 0 0 88px; width: 88px; height: 120px; object-fit: contain; }
+.photo-frame { margin: 28px 0; padding: 10px; background: #fff; border: 1px solid #d6d8d0; box-shadow: 2px 3px 0 #dfdfd6; }
+.photo-frame img { display: block; width: 100%; height: auto; max-height: 540px; object-fit: cover; object-position: center 62%; }
+.photo-frame figcaption { display: flex; flex-wrap: wrap; gap: 5px 18px; align-items: center; padding: 12px 3px 4px; font-size: 11px; color: #5d675a; }
+.photo-frame figcaption span { font-family: monospace; font-size: 9px; letter-spacing: .8px; color: #949b8f; }
+.studio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.studio-grid figure { margin: 0; }
+.studio-grid img { display: block; width: 100%; height: 190px; object-fit: cover; border: 1px solid #d6d8d0; }
+.studio-grid figcaption { font-size: 11px; color: #747c70; margin-top: 8px; }
+.about-portrait { float: right; width: 150px; margin: 0 0 18px 24px; transform: rotate(3deg); padding: 7px 7px 10px; background: #fff; border: 1px solid #e1dfd6; box-shadow: 2px 4px 0 #deded5; }
+.about-portrait img { display: block; width: 100%; height: auto; }
+.about-portrait span { display: block; text-align: center; margin-top: 7px; font-family: monospace; font-size: 7px; letter-spacing: .8px; color: #84897d; }
+.shop-products { display: flex; height: 172px; align-items: center; justify-content: center; gap: 30px; margin: -4px 0 30px; padding: 12px; background: #eceee7; border-bottom: 1px solid #d5d9cd; }
+.shop-products img { width: auto; max-width: 43%; height: 100%; object-fit: contain; }
+.has-js #documents:target + .window-stack .content-window { animation: none; }
+#documents:target + .window-stack .window-maximize, #documents:target + .window-stack .window-hint { display: none; }
+#documents:target + .window-stack .window-bar { cursor: default; }
+@keyframes window-appear { from { opacity: 0; filter: blur(2px); } to { opacity: 1; filter: blur(0); } }
+@media (max-width: 600px) {
+  .brand-sticker { width: 137px; height: 66px; padding: 4px; }
+  .product-tile { width: 108px; height: 121px; padding: 7px; }
+  .content-window { width: calc(100% - 20px); top: 14px; max-height: calc(100svh - 28px); transform: translateX(-50%); }
+  .window-bar { padding-left: 12px; font-size: 11px; }
+  .window-body { padding: 24px 22px 28px; }
+  .window-toolbar { padding: 8px 12px; font-size: 9px; }
+  .toolbar-mode { font-size: 8px; }
+  .window-status { padding: 9px 12px; font-size: 8px; }
+  .window-hint { max-width: 130px; }
+  .content-window.is-maximized { width: calc(100vw - 12px); height: calc(100svh - 12px); max-height: calc(100svh - 12px); left: 6px; top: 6px; transform: none; }
+  .content-window.is-maximized .window-body { padding-left: 22px; padding-right: 22px; }
+  .product-preview { height: 240px; padding-top: 20px; }
+  .preview-index { left: 19px; font-size: 8px; }
+  .about-portrait { width: 112px; margin-left: 15px; margin-bottom: 13px; }
+  #about-title { clear: both; padding-top: 7px; }
+  .studio-grid { gap: 12px; }
+  .studio-grid img { height: 150px; }
+  .studio-grid figcaption { font-size: 10px; }
+  .game-thumbnail { flex-basis: 66px; width: 66px; height: 100px; }
+  .scene-controls { padding: 0 3px 0 8px; height: 38px; }
+  .scene-number { font-size: 9px; letter-spacing: 0; padding-right: 0; }
+  .scene-controls button { width: 28px; }
+  .index-link { padding: 0 7px; gap: 5px; font-size: 10px; }
+}
+@media (max-width: 350px) {
+  .window-body { padding-left: 17px; padding-right: 17px; }
+  .toolbar-mode { display: none; }
+  .window-hint { font-size: 7px; }
+  .scene-controls { left: 47%; }
+}
+
+/* 10. 동작 감소, 고대비, 인쇄 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+@media (forced-colors: active) {
+  .desktop-item, .folder, .product-tile, .guide-thumbnail, .content-window { border: 1px solid CanvasText; }
+}
+@media print {
+  html, body { background: #fff; color: #000; }
+  .wallpaper, .window-backdrop, .desktop-menu, .desktop-footer, .desktop, .skip-link, .window-close, .window-maximize, .window-status, .reader-heading { display: none !important; }
+  .window-stack, body:has(#documents:target) .window-stack { padding: 0; max-width: none; }
+  .content-window, #documents:target + .window-stack .content-window { display: block; position: static; width: 100%; max-height: none; transform: none; margin: 0 0 20px; color: #000; background: #fff; box-shadow: none; border: 0; border-radius: 0; }
+  .window-body { overflow: visible; padding: 15px 0; font-size: 11pt; }
+  .window-bar { background: #fff; border-bottom: 1px solid #000; padding: 0; }
+  h2, h3 { break-after: avoid; }
+  p, li { orphans: 3; widows: 3; }
+  .action-link { color: #000; background: #fff; }
+}

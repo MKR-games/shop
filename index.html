@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <title>무꾸리 | 머더미스터리와 스토리 게임</title>
+  <meta name="description" content="무꾸리의 6인용 머더미스터리 검은 복도와 5인용 똑…똑…똑…을 만나보세요. 작품 소개, 처음 하는 분을 위한 안내, 제작 과정과 공식 구매처를 확인할 수 있습니다.">
+  <meta name="author" content="무꾸리 · 강민구">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:site_name" content="무꾸리">
+  <meta property="og:title" content="무꾸리 | 당신이 펼칠, 다음 사건.">
+  <meta property="og:description" content="이야기 속 인물이 되어 단서와 대화로 진실을 추리하는 머더미스터리. 작품 파일을 열어 다음 사건을 만나보세요.">
+  <!-- 정식 배포 주소가 정해지면 canonical, og:url, og:image를 추가합니다. -->
+  <link rel="stylesheet" href="./style.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#documents">전체 내용 읽기</a>
+  <div class="wallpaper" aria-hidden="true">
+    <div class="wallpaper-frame">
+      <img class="wallpaper-slide is-active" src="./assets/corridor.webp" width="1440" height="810" alt="" data-scene="비 내리는 복도" fetchpriority="high">
+      <img class="wallpaper-slide" src="./assets/workshop.webp" width="1440" height="1080" alt="" data-scene="무꾸리의 작업실">
+      <img class="wallpaper-slide" src="./assets/exhibition.webp" width="1200" height="1600" alt="" data-scene="이야기가 놓인 전시 공간">
+    </div>
+  </div>
+  <div class="window-backdrop" aria-hidden="true" hidden></div>
+  <p id="desktop-help" class="visually-hidden">클릭하면 파일을 엽니다. 마우스나 손가락으로 드래그해 위치를 옮길 수 있습니다. 키보드에서는 Shift와 방향키로 이동하고, Shift와 Home으로 원래 위치로 돌아갑니다.</p>
+  <p class="visually-hidden" id="desktop-status" role="status" aria-live="polite"></p>
+
+  <!-- 작은 흰 메뉴 두 묶음. 아직 만들지 않은 서브 페이지 대신 실제 문서에 연결. -->
+  <header class="desktop-menu">
+    <nav class="menu-group" aria-label="주 메뉴">
+      <a href="#desktop" lang="en">Home</a>
+      <a href="#purchase" lang="en">Shop</a>
+    </nav>
+    <nav class="menu-group" aria-label="작품과 제작자">
+      <a href="#games">작품 <span class="count">2</span></a>
+      <a href="#about">무꾸리 소개</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- 첫 화면: 넓은 검은 여백, 중앙 사진, 작은 썸네일과 폴더. -->
+    <section class="desktop" id="desktop" aria-labelledby="home-title">
+      <h1 class="visually-hidden" id="home-title">무꾸리 — 머더미스터리와 스토리 게임</h1>
+      <p class="visually-hidden">무꾸리는 플레이어가 이야기 속 인물이 되어 단서를 살피고 대화하며 사건의 진실을 추리하는 게임을 만듭니다. 작품이나 폴더를 선택하면 소개를 읽을 수 있습니다.</p>
+      <nav class="scatter" aria-label="작품과 안내 파일">
+        <a draggable="false" aria-describedby="desktop-help" class="desktop-item item-brand" href="#about" aria-label="무꾸리 브랜드와 제작자 소개 열기">
+          <span class="brand-sticker"><img src="./assets/brand-logo.webp" width="900" height="300" alt="무꾸리 마스코트와 로고" draggable="false"></span>
+          <span class="file-label">이야기를 만드는 사람</span>
+        </a>
+
+        <a draggable="false" aria-describedby="desktop-help" class="desktop-item item-black" href="#black-corridor" aria-label="검은 복도, 6인용 머더미스터리 소개 열기">
+          <span class="product-tile tile-black" aria-hidden="true">
+            <img src="./assets/black-corridor.webp" width="834" height="900" alt="" draggable="false">
+          </span>
+          <span class="file-badge">6인용</span>
+          <span class="file-label">검은 복도</span>
+        </a>
+
+        <a draggable="false" aria-describedby="desktop-help" class="desktop-item item-guide" href="#guide" aria-label="머더미스터리가 처음이라면 안내 열기">
+          <span class="guide-thumbnail" aria-hidden="true"><img src="./assets/eyes.svg" width="100" height="37" alt="" draggable="false"><span class="guide-caption">READ ME FIRST</span></span>
+          <span class="file-label">처음이라면.txt</span>
+        </a>
+
+        <a draggable="false" aria-describedby="desktop-help" class="desktop-item item-knock" href="#knock-knock-knock" aria-label="똑…똑…똑…, 5인용 머더미스터리 소개 열기">
+          <span class="product-tile tile-knock" aria-hidden="true">
+            <img src="./assets/knock-knock-knock.webp" width="645" height="900" alt="" draggable="false">
+          </span>
+          <span class="file-badge">5인용 · 약 90분</span>
+          <span class="file-label">똑…똑…똑…</span>
+        </a>
+
+        <a draggable="false" aria-describedby="desktop-help" class="desktop-item item-shop" href="#purchase" aria-label="무꾸리 구매처 폴더 열기">
+          <span class="folder" aria-hidden="true"></span>
+          <span class="file-label" lang="en">Shop</span>
+        </a>
+        <a draggable="false" aria-describedby="desktop-help" class="desktop-item item-work" href="#work" aria-label="무꾸리 제작 포트폴리오 폴더 열기">
+          <span class="folder" aria-hidden="true"></span>
+          <span class="file-label">제작 포트폴리오</span>
+        </a>
+      </nav>
+    </section>
+
+    <!-- 기본 링크는 스크립트 없이도 작동합니다. app.js가 포커스·이동·창 크기를 관리합니다. -->
+    <div id="documents" class="documents-anchor" tabindex="-1"></div>
+    <div class="window-stack">
+      <div class="reader-heading"><p>MUKKURI / INDEX</p><h2>무꾸리 전체 문서</h2><a href="#desktop">바탕화면으로 돌아가기 ↗</a></div>
+
+      <section class="content-window" id="games" aria-labelledby="games-title" tabindex="-1">
+        <header class="window-bar"><span class="mini-folder" aria-hidden="true"></span><span>무꾸리 / 작품</span><button class="window-maximize js-only" type="button" aria-label="창 확대" aria-pressed="false" title="창 확대"><span aria-hidden="true">□</span></button><a class="window-close" href="#desktop" aria-label="작품 창 닫기">×</a></header><div class="window-toolbar"><span class="toolbar-location">MUKKURI <span aria-hidden="true">/</span> 무꾸리 / 작품</span><span class="toolbar-mode">READ ONLY</span></div>
+        <div class="window-body">
+          <p class="document-path">MUKKURI / GAMES</p>
+          <h2 id="games-title">함께 풀어볼 사건.</h2>
+          <p>인원을 확인하고, 함께 플레이할 작품을 골라보세요.</p>
+          <article class="game-row"><div><span class="text-tag">6인용 머더미스터리</span><h3><a href="#black-corridor">검은 복도 ↗</a></h3><p>폭우 속 폐수련원. 공포영화의 암전 촬영 중 벌어진 살인사건.</p></div><img class="game-thumbnail" src="./assets/black-corridor.webp" width="100" height="108" alt="검은 복도 패키지" loading="lazy"></article>
+          <article class="game-row"><div><span class="text-tag">5인용 · 약 90분 · GM 없음</span><h3><a href="#knock-knock-knock">똑…똑…똑… ↗</a></h3><p>산속 수련원의 닫힌 방. 세 번의 노크 뒤에 드러난 사건.</p></div><img class="game-thumbnail" src="./assets/knock-knock-knock.webp" width="100" height="140" alt="똑똑똑 패키지" loading="lazy"></article>
+          <nav class="document-links" aria-label="작품 관련 안내"><a href="#guide">처음이라면 →</a><a href="#purchase">구매처 확인 →</a></nav>
+        </div>
+        <footer class="window-status"><span><i aria-hidden="true"></i> MUKKURI ARCHIVE</span><span class="window-hint">제목 표시줄을 드래그해 이동 · Esc 닫기</span></footer>
+      </section>
+
+      <section class="content-window" id="black-corridor" aria-labelledby="black-title" tabindex="-1">
+        <header class="window-bar"><span class="mini-file" aria-hidden="true"></span><span>작품 / 검은 복도</span><button class="window-maximize js-only" type="button" aria-label="창 확대" aria-pressed="false" title="창 확대"><span aria-hidden="true">□</span></button><a class="window-close" href="#desktop" aria-label="검은 복도 소개 닫기">×</a></header><div class="window-toolbar"><span class="toolbar-location">MUKKURI <span aria-hidden="true">/</span> 작품 / 검은 복도</span><span class="toolbar-mode">READ ONLY</span></div>
+        <div class="window-body">
+          <p class="document-path">CASE 01 / 6인용 머더미스터리</p>
+          <h2 id="black-title">검은 복도</h2>
+          <figure class="product-preview preview-black"><span class="preview-index">CASE FILE / 01</span><img src="./assets/black-corridor.webp" width="834" height="900" alt="검은 바탕과 파란 하단, 문에서 빛이 쏟아지는 검은 복도 패키지 목업" loading="lazy"><figcaption>검은 복도 <span>PACKAGE DESIGN</span></figcaption></figure>
+          <p class="document-lead">불이 꺼진 동안,<br>누군가의 이야기가 달라졌다.</p>
+          <p>《검은 복도》는 무꾸리가 제작한 6인용 머더미스터리입니다. 폭우 속 폐수련원에서 진행된 공포영화의 암전 촬영 중 살인사건이 벌어집니다.</p>
+          <p>여섯 명의 플레이어가 각자의 역할을 맡아, 남겨진 단서와 서로의 진술을 맞춰보며 사건의 진실을 추리합니다.</p>
+          <dl class="facts"><div><dt>플레이 인원</dt><dd>6명</dd></div><div><dt>이야기의 무대</dt><dd>폭우 속 폐수련원</dd></div><div><dt>이용 자료</dt><dd>실물 구성품과 QR 자료</dd></div><div><dt>QR 자료 준비물</dt><dd>스마트폰과 인터넷 환경</dd></div></dl>
+          <h3>어둠 속에서 무슨 일이 있었을까요?</h3>
+          <p>촬영을 위해 불을 끈 시간. 사건 이후 남겨진 사람들은 그 짧은 순간의 행적을 되짚어야 합니다. 모두가 같은 장소에 있었지만, 알고 있는 이야기는 서로 다릅니다.</p>
+          <p class="document-note">플레이 시간과 구성품, 판매 조건은 구매 전 공식 판매페이지에서 확인해 주세요.</p>
+          <a class="action-link" href="#purchase">공식 구매처 안내 보기 ↗</a>
+          <nav class="document-links" aria-label="검은 복도 관련 안내"><a href="#games">전체 작품</a><a href="#work">제작 과정</a></nav>
+        </div>
+        <footer class="window-status"><span><i aria-hidden="true"></i> MUKKURI ARCHIVE</span><span class="window-hint">제목 표시줄을 드래그해 이동 · Esc 닫기</span></footer>
+      </section>
+
+      <section class="content-window" id="knock-knock-knock" aria-labelledby="knock-title" tabindex="-1">
+        <header class="window-bar"><span class="mini-file" aria-hidden="true"></span><span>작품 / 똑…똑…똑…</span><button class="window-maximize js-only" type="button" aria-label="창 확대" aria-pressed="false" title="창 확대"><span aria-hidden="true">□</span></button><a class="window-close" href="#desktop" aria-label="똑…똑…똑… 소개 닫기">×</a></header><div class="window-toolbar"><span class="toolbar-location">MUKKURI <span aria-hidden="true">/</span> 작품 / 똑…똑…똑…</span><span class="toolbar-mode">READ ONLY</span></div>
+        <div class="window-body">
+          <p class="document-path">CASE 02 / 5인용 머더미스터리</p>
+          <h2 id="knock-title">똑…똑…똑…</h2>
+          <figure class="product-preview preview-knock"><span class="preview-index">CASE FILE / 02</span><img src="./assets/knock-knock-knock.webp" width="645" height="900" alt="노크하는 손과 짙은 초록색이 담긴 똑똑똑 패키지 목업" loading="lazy"><figcaption>똑… 똑… 똑… <span>PACKAGE DESIGN</span></figcaption></figure>
+          <p class="document-lead">닫힌 방에서,<br>세 번의 노크가 들렸다.</p>
+          <p>《똑…똑…똑…》은 다섯 명이 각자의 역할을 맡아 단서를 살피고 대화하며 사건의 진실을 추리하는 머더미스터리입니다. 별도의 진행자(GM) 없이 플레이할 수 있습니다.</p>
+          <dl class="facts"><div><dt>플레이 인원</dt><dd>5명</dd></div><div><dt>예상 플레이 시간</dt><dd>약 90분</dd></div><div><dt>권장 연령</dt><dd>15세 이상</dd></div><div><dt>별도 진행자</dt><dd>필요 없음</dd></div><div><dt>QR 자료 준비물</dt><dd>스마트폰과 인터넷 환경</dd></div></dl>
+          <h3>산속 수련원에서 맞이한 하룻밤</h3>
+          <p>2000년대 초, 태권도장의 고등부 수련생들이 수련회를 위해 오래된 산속 수련원을 찾습니다. 복도 끝의 닫힌 방에는 밤마다 노크 소리가 들린다는 이야기가 전해집니다.</p>
+          <p>그리고 다음 날 아침, 그 방에서 사건이 드러납니다. 다섯 명은 각자가 알고 있는 일을 바탕으로 지난밤을 되짚기 시작합니다.</p>
+          <a class="action-link" href="#purchase">공식 구매처 안내 보기 ↗</a>
+          <nav class="document-links" aria-label="똑똑똑 관련 안내"><a href="#games">전체 작품</a><a href="#guide">처음이라면</a></nav>
+        </div>
+        <footer class="window-status"><span><i aria-hidden="true"></i> MUKKURI ARCHIVE</span><span class="window-hint">제목 표시줄을 드래그해 이동 · Esc 닫기</span></footer>
+      </section>
+
+      <section class="content-window" id="guide" aria-labelledby="guide-title" tabindex="-1">
+        <header class="window-bar"><span class="mini-file" aria-hidden="true"></span><span>처음이라면.txt</span><button class="window-maximize js-only" type="button" aria-label="창 확대" aria-pressed="false" title="창 확대"><span aria-hidden="true">□</span></button><a class="window-close" href="#desktop" aria-label="처음이라면 안내 닫기">×</a></header><div class="window-toolbar"><span class="toolbar-location">MUKKURI <span aria-hidden="true">/</span> 처음이라면.txt</span><span class="toolbar-mode">READ ONLY</span></div>
+        <div class="window-body">
+          <p class="document-path">READ ME FIRST</p><h2 id="guide-title">머더미스터리가 처음이라면.</h2>
+          <p class="document-lead">당신도 이 이야기의 등장인물입니다.</p>
+          <p>머더미스터리는 플레이어가 사건에 연루된 인물을 맡아, 각자 알고 있는 정보와 조사한 단서를 바탕으로 사건의 진실을 추리하는 대화형 게임입니다.</p>
+          <h3>어떻게 플레이하나요?</h3>
+          <ol class="steps"><li><strong>자신의 인물을 이해합니다.</strong><p>캐릭터 설정서를 읽고, 사건 속에서 내가 알고 있는 일을 확인합니다.</p></li><li><strong>단서를 살피고 대화합니다.</strong><p>작품의 규칙에 따라 조사하고, 다른 사람의 이야기를 들으며 질문합니다.</p></li><li><strong>판단을 내리고 결말을 확인합니다.</strong><p>모인 정보를 연결해 자신의 추리를 정리합니다. 세부 진행 방식은 작품마다 다릅니다.</p></li></ol>
+          <h3>자주 묻는 질문</h3>
+          <dl class="faq"><div><dt>연기를 잘해야 하나요?</dt><dd>연기 경험이 필수는 아닙니다. 설정서를 이해하고, 자신이 맡은 인물의 입장에서 이야기하면 됩니다.</dd></div><div><dt>무엇을 준비해야 하나요?</dt><dd>작품에 맞는 인원과 충분한 시간, 함께 대화할 공간을 준비해 주세요. QR 자료를 사용하는 작품에는 스마트폰과 인터넷 환경도 필요합니다.</dd></div><div><dt>다시 플레이할 수 있나요?</dt><dd>범인과 주요 전개를 알게 되면 첫 플레이와 같은 추리 경험을 하기 어렵습니다. 이미 내용을 아는 사람의 참여는 작품의 규칙과 참가자들의 동의를 확인해 주세요.</dd></div><div><dt>후기에는 무엇을 적으면 안 되나요?</dt><dd>범인, 결말, 핵심 단서와 캐릭터의 비밀이 드러나지 않도록 작성해 주세요.</dd></div></dl>
+          <a class="action-link" href="#games">함께할 작품 고르기 →</a>
+        </div>
+        <footer class="window-status"><span><i aria-hidden="true"></i> MUKKURI ARCHIVE</span><span class="window-hint">제목 표시줄을 드래그해 이동 · Esc 닫기</span></footer>
+      </section>
+
+      <section class="content-window" id="work" aria-labelledby="work-title" tabindex="-1">
+        <header class="window-bar"><span class="mini-folder" aria-hidden="true"></span><span>무꾸리 / 제작 포트폴리오</span><button class="window-maximize js-only" type="button" aria-label="창 확대" aria-pressed="false" title="창 확대"><span aria-hidden="true">□</span></button><a class="window-close" href="#desktop" aria-label="제작 포트폴리오 닫기">×</a></header><div class="window-toolbar"><span class="toolbar-location">MUKKURI <span aria-hidden="true">/</span> 무꾸리 / 제작 포트폴리오</span><span class="toolbar-mode">READ ONLY</span></div>
+        <div class="window-body">
+          <p class="document-path">BEHIND THE STORY</p><h2 id="work-title">이야기가 게임이 되기까지.</h2>
+          <p>무꾸리의 작업은 이야기와 플레이 규칙, 카드와 책자 디자인, 디지털 자료로 이어집니다. 플레이어가 무엇을 읽고, 어떤 정보를 확인하며, 언제 대화를 시작할지 함께 설계합니다.</p>
+          <figure class="photo-frame"><img src="./assets/exhibition.webp" width="1200" height="1600" alt="검은 복도와 똑똑똑의 패키지, 카드, 설명 자료가 놓인 실제 졸업전시 부스" loading="lazy"><figcaption><span>01 / EXHIBITION</span>작품이 관람객을 만나는 자리.</figcaption></figure>
+          <div class="studio-grid"><figure><img src="./assets/mascot-desk.webp" width="1000" height="750" alt="작업대 앞에서 원고를 고민하는 무꾸리 캐릭터" loading="lazy"><figcaption>기획하고, 쓰고, 다듬는 시간.</figcaption></figure><figure><img src="./assets/shipping.webp" width="600" height="800" alt="택배 상자 곁의 무꾸리 캐릭터" loading="lazy"><figcaption>이야기를 당신의 테이블로.</figcaption></figure></div>
+          <ol class="work-list"><li><span>01 / 기획 · 집필</span><h3>이야기와 규칙</h3><p>인물의 시선과 사건의 흐름을 정리하고, 단서를 확인하고 대화하는 방식을 구성합니다.</p></li><li><span>02 / 편집 · 시각 디자인</span><h3>손에 닿는 디자인</h3><p>카드와 책자에 담길 정보를 정리하고, 플레이 중 필요한 내용을 찾아 읽을 수 있게 다듬습니다.</p></li><li><span>03 / 디지털 플레이 자료</span><h3>플레이를 잇는 화면</h3><p>QR로 확인하는 설명서와 캐릭터 자료를 구성하고, 모바일에서 읽는 흐름을 정리합니다.</p></li></ol>
+          <nav class="document-links" aria-label="포트폴리오 관련 안내"><a href="#games">완성된 작품 보기 →</a><a href="#about">만드는 사람 →</a></nav>
+        </div>
+        <footer class="window-status"><span><i aria-hidden="true"></i> MUKKURI ARCHIVE</span><span class="window-hint">제목 표시줄을 드래그해 이동 · Esc 닫기</span></footer>
+      </section>
+
+      <section class="content-window" id="about" aria-labelledby="about-title" tabindex="-1">
+        <header class="window-bar"><span class="mini-file" aria-hidden="true"></span><span>무꾸리 소개.txt</span><button class="window-maximize js-only" type="button" aria-label="창 확대" aria-pressed="false" title="창 확대"><span aria-hidden="true">□</span></button><a class="window-close" href="#desktop" aria-label="무꾸리 소개 닫기">×</a></header><div class="window-toolbar"><span class="toolbar-location">MUKKURI <span aria-hidden="true">/</span> 무꾸리 소개.txt</span><span class="toolbar-mode">READ ONLY</span></div>
+        <div class="window-body">
+          <div class="about-portrait"><img src="./assets/mascot.webp" width="700" height="700" alt="열쇠구멍 장식과 선글라스, 분홍 볼이 있는 무꾸리 마스코트" loading="lazy"><span>HELLO, I’M MUKKURI.</span></div><p class="document-path">MADE BY MUKKURI</p><h2 id="about-title">무꾸리와 제작자 강민구.</h2>
+          <p class="document-lead">이야기를 만들고,<br>플레이할 수 있게 다듬습니다.</p>
+          <p>무꾸리(MUKKURI)는 머더미스터리와 스토리 게임을 기획·제작하는 창작 브랜드입니다. 제작자 강민구는 이야기와 규칙, 시각 디자인과 디지털 자료를 연결해 플레이어가 직접 참여하는 경험을 만듭니다.</p>
+          <p>첫 문장을 읽는 순간부터 마지막 추리를 나누는 순간까지. 플레이어가 만나는 문장과 화면, 손에 쥐는 구성품을 함께 생각합니다.</p>
+          <h3>대표 작품</h3><ul class="plain-list"><li><a href="#black-corridor">검은 복도 — 6인용 머더미스터리</a></li><li><a href="#knock-knock-knock">똑…똑…똑… — 5인용 머더미스터리</a></li></ul>
+          <h3>구매 및 상품 문의</h3><p>주문·배송·구성품 문의는 구매한 판매처의 문의 채널을 이용해 주세요.</p>
+          <a class="action-link" href="#purchase">공식 판매페이지 안내 ↗</a>
+        </div>
+        <footer class="window-status"><span><i aria-hidden="true"></i> MUKKURI ARCHIVE</span><span class="window-hint">제목 표시줄을 드래그해 이동 · Esc 닫기</span></footer>
+      </section>
+
+      <section class="content-window" id="purchase" aria-labelledby="purchase-title" tabindex="-1">
+        <header class="window-bar"><span class="mini-folder" aria-hidden="true"></span><span>무꾸리 / Shop</span><button class="window-maximize js-only" type="button" aria-label="창 확대" aria-pressed="false" title="창 확대"><span aria-hidden="true">□</span></button><a class="window-close" href="#desktop" aria-label="구매처 안내 닫기">×</a></header><div class="window-toolbar"><span class="toolbar-location">MUKKURI <span aria-hidden="true">/</span> 무꾸리 / Shop</span><span class="toolbar-mode">READ ONLY</span></div>
+        <div class="window-body">
+          <div class="shop-products" aria-hidden="true"><img src="./assets/black-corridor.webp" alt="" width="130" height="140"><img src="./assets/knock-knock-knock.webp" alt="" width="105" height="147"></div><p class="document-path">OFFICIAL SHOP</p><h2 id="purchase-title">다음 사건을, 당신의 테이블로.</h2>
+          <p>무꾸리 머더미스터리는 공식 외부 판매페이지에서 구매할 수 있습니다. 현재 가격과 배송비, 판매 중인 작품과 옵션은 해당 페이지에서 확인해 주세요.</p>
+          <a class="action-link shop-link" href="http://naver.me/5hoz1qhO" target="_blank" rel="noopener noreferrer">네이버 스마트스토어에서 구매하기 <span aria-hidden="true">↗</span><span class="visually-hidden"> (새 창)</span></a>
+          <p class="document-note">외부 판매페이지가 새 창에서 열립니다.</p>
+          <h3>구매 전에 확인해 주세요</h3><ul class="plain-list"><li>《검은 복도》는 6인용, 《똑…똑…똑…》은 5인용 게임입니다.</li><li>QR 자료를 확인할 스마트폰과 인터넷 환경을 준비해 주세요.</li><li>상품별 플레이 시간·구성품·배송 안내를 판매페이지에서 확인해 주세요.</li></ul>
+          <nav class="document-links" aria-label="구매 관련 안내"><a href="#games">작품 비교하기</a><a href="#guide">처음이라면</a></nav>
+        </div>
+        <footer class="window-status"><span><i aria-hidden="true"></i> MUKKURI ARCHIVE</span><span class="window-hint">제목 표시줄을 드래그해 이동 · Esc 닫기</span></footer>
+      </section>
+    </div>
+  </main>
+
+  <footer class="desktop-footer">
+    <details class="info-menu"><summary lang="en">Info</summary><div class="info-panel"><strong>무꾸리 · MUKKURI</strong><p>머더미스터리와 스토리 게임<br>제작자 강민구</p><nav aria-label="브랜드 정보"><a href="#about">무꾸리 소개</a><a href="#purchase">구매 및 상품 문의</a></nav><div class="desktop-settings js-only"><button id="reset-layout" type="button">아이콘 원래 위치로 ↺</button><p>아이콘을 드래그해 옮겨 보세요.<br>Shift + 방향키로도 이동할 수 있습니다.</p></div><small>© 2026 MUKKURI.</small></div></details>
+    <div class="scene-controls js-only" aria-label="배경 전환"><span class="scene-number" aria-hidden="true">01 / 03</span><button id="scene-pause" type="button" aria-label="배경 자동 전환 일시정지" aria-pressed="false">Ⅱ</button><button id="scene-next" type="button" aria-label="다음 배경 보기">→</button></div>
+    <a class="index-link" href="#documents">전체 문서 보기 <span aria-hidden="true">↗</span></a>
+  </footer>
+</body>
+</html>

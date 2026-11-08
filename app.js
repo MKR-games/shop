@@ -1,10 +1,9 @@
-/* MUKKURI desktop — dependency-free. Works from index.html and static hosting. */
+/* MUKKURI Windows desktop — dependency-free; file:// and static hosting. */
 (() => {
   'use strict';
   const $ = (q, scope = document) => scope.querySelector(q);
   const $$ = (q, scope = document) => [...scope.querySelectorAll(q)];
   const clamp = (n, min, max) => Math.min(Math.max(n, min), Math.max(min, max));
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const storage = {
     read(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } },
     write(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* Private browsing still works. */ } }
@@ -14,60 +13,91 @@
   let announceTimer;
   function announce(text) { clearTimeout(announceTimer); status.textContent = ''; announceTimer = setTimeout(() => { status.textContent = text; }, 50); }
 
-  // Two fully decoded photographs overlap during each crossfade.
+  // Keep the current image until another image has loaded successfully.
+  // Checking naturalWidth avoids a hanging decode() promise stopping rotation
+  // in browsers that implement image decoding differently.
   const slides = $$('.wallpaper-slide');
-  const pause = $('#scene-pause');
-  const next = $('#scene-next');
-  let scene = 0, sceneTimer, sceneBusy = false, sceneToken = 0;
-  let paused = storage.read('mukkuri-background-paused', false) === true;
-  function sceneControls() {
-    const stopped = paused || reduced.matches;
-    pause.textContent = stopped ? '▶' : 'Ⅱ';
-    pause.disabled = reduced.matches;
-    pause.setAttribute('aria-pressed', String(stopped));
-    pause.setAttribute('aria-label', reduced.matches ? '동작 줄이기 설정으로 자동 전환 정지' : (paused ? '배경 자동 전환 재생' : '배경 자동 전환 일시정지'));
-    pause.title = pause.getAttribute('aria-label');
-    $('.scene-number').textContent = `${String(scene + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
-    next.title = `다음 배경 보기 · 현재 ${slides[scene].dataset.scene}`;
+  const SCENE_INTERVAL = 3000;
+  let scene = Math.max(0, slides.findIndex(slide => slide.classList.contains('is-active')));
+  let sceneTimer = null;
+  let lastSceneChange = Date.now();
+  let fading = null;
+
+  // The old photo stays fully visible under the incoming photo until the
+  // incoming photo has finished fading in. This avoids a flash of black.
+  function finishSceneFade() {
+    if (!fading) return;
+    const {previous, incoming, onEnd, fallback} = fading;
+    fading = null;
+    clearTimeout(fallback);
+    incoming.removeEventListener('transitionend', onEnd);
+    previous.classList.add('is-resetting');
+    previous.classList.remove('is-active');
+    // Commit the reset before allowing transitions on this slide again.
+    void previous.offsetWidth;
+    previous.classList.remove('is-resetting');
+    incoming.classList.remove('is-incoming');
+  }
+
+  function checkSceneFade() {
+    if (!fading) return;
+    // Some browsers suspend animation frames in a background tab. Never
+    // replace the old image until the new one is actually opaque.
+    if (Number(getComputedStyle(fading.incoming).opacity) >= 0.999) {
+      finishSceneFade();
+    } else {
+      fading.fallback = setTimeout(checkSceneFade, 250);
+    }
+  }
+
+  function changeScene() {
+    if (slides.length < 2 || fading) return;
+    for (let step = 1; step < slides.length; step++) {
+      const next = (scene + step) % slides.length;
+      const image = slides[next].querySelector('.wallpaper-image');
+      if (!image || !image.complete || image.naturalWidth === 0) continue;
+      const previous = slides[scene];
+      const incoming = slides[next];
+      incoming.classList.add('is-incoming');
+      // Give the browser a definite zero-opacity starting frame.
+      void incoming.offsetWidth;
+      const onEnd = event => {
+        if (event.target === incoming && event.propertyName === 'opacity') finishSceneFade();
+      };
+      const fallback = setTimeout(checkSceneFade, 1800);
+      fading = {previous, incoming, onEnd, fallback};
+      incoming.addEventListener('transitionend', onEnd);
+      incoming.classList.add('is-active');
+      scene = next;
+      lastSceneChange = Date.now();
+      return;
+    }
   }
   function scheduleScene() {
-    clearTimeout(sceneTimer);
-    if (!paused && !reduced.matches && !document.hidden) sceneTimer = setTimeout(() => changeScene(false), 10000);
+    if (sceneTimer !== null) clearInterval(sceneTimer);
+    if (slides.length > 1) sceneTimer = setInterval(changeScene, SCENE_INTERVAL);
   }
-  async function changeScene(manual) {
-    if (sceneBusy || (!manual && (paused || reduced.matches || document.hidden))) return;
-    sceneBusy = true;
-    const token = sceneToken;
-    let target = (scene + 1) % slides.length;
-    try {
-      await slides[target].decode();
-      if (token !== sceneToken || (!manual && (paused || reduced.matches || document.hidden))) return;
-      slides[target].classList.add('is-active');
-      slides[scene].classList.remove('is-active');
-      scene = target;
-      sceneControls();
-    } catch { /* A missing photograph never removes the visible background. */ }
-    finally { sceneBusy = false; scheduleScene(); }
-  }
-  pause.addEventListener('click', () => { paused = !paused; sceneToken++; storage.write('mukkuri-background-paused', paused); sceneControls(); scheduleScene(); });
-  next.addEventListener('click', () => { clearTimeout(sceneTimer); changeScene(true); });
-  document.addEventListener('visibilitychange', () => { sceneToken++; scheduleScene(); });
-  reduced.addEventListener('change', () => { sceneToken++; sceneControls(); scheduleScene(); });
-  sceneControls(); scheduleScene();
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return;
+    if (Date.now() - lastSceneChange >= SCENE_INTERVAL) changeScene();
+    scheduleScene();
+  });
+  // Rotation and the wallpaper fade continue even when other motion is reduced.
+  scheduleScene();
 
   // Desktop items keep their anchor semantics. Moving never activates a link.
   const desktop = $('.desktop');
   const items = $$('.desktop-item');
-  const layoutKey = 'mukkuri-desktop-layout-v2';
+  const layoutKey = 'mukkuri-desktop-layout-v3';
   const storedLayout = storage.read(layoutKey, {});
   const layouts = storedLayout && typeof storedLayout === 'object' && !Array.isArray(storedLayout) ? storedLayout : {};
   const offset = new Map(items.map(el => [el, {x: 0, y: 0}]));
-  const getProfile = () => innerWidth <= 600 ? 'phone' : innerWidth <= 800 ? 'tablet' : 'desktop';
+  const getProfile = () => innerWidth <= 600 ? 'phone' : innerWidth <= 1000 ? 'tablet' : 'desktop';
   let profile = getProfile(), drag = null, dragLayer = 2;
   const suppressed = new WeakMap();
   function bounds(el) {
     const area = desktop.getBoundingClientRect(), r = el.getBoundingClientRect();
-    return {minX: 12, maxX: innerWidth - r.width - 12, minY: area.top + 66, maxY: area.bottom - r.height - 70};
+    return {minX: 12, maxX: innerWidth - r.width - 12, minY: area.top + 92, maxY: area.bottom - r.height - 70};
   }
   function moveItem(el, x, y) {
     const r = el.getBoundingClientRect(), b = bounds(el), o = offset.get(el);
@@ -95,6 +125,7 @@
     el.addEventListener('dragstart', e => e.preventDefault());
     el.addEventListener('pointerdown', e => {
       if (!e.isPrimary || e.button !== 0 || activeWindow || drag) return;
+      items.forEach(item => item.classList.toggle('is-selected', item === el));
       const r = el.getBoundingClientRect();
       drag = {el, id: e.pointerId, startX: e.clientX, startY: e.clientY, x: r.left, y: r.top, origin: {...offset.get(el)}, moved: false};
       el.setPointerCapture(e.pointerId);
@@ -127,6 +158,8 @@
       else if (dirs[e.key]) { e.preventDefault(); const r = el.getBoundingClientRect(), d = dirs[e.key]; moveItem(el, r.left + d[0], r.top + d[1]); saveItem(el); }
     });
   });
+  desktop.addEventListener('pointerdown', e => { if (!e.target.closest('.desktop-item')) items.forEach(item => item.classList.remove('is-selected')); });
+  items.forEach(el => el.addEventListener('focus', () => items.forEach(item => item.classList.toggle('is-selected', item === el))));
   $('#reset-layout').addEventListener('click', () => { for (const key of Object.keys(layouts)) delete layouts[key]; storage.write(layoutKey, layouts); items.forEach(resetItem); announce('모든 아이콘을 원래 위치로 되돌렸습니다.'); });
 
   // One focused document at a time, with real window controls and URL history.
@@ -134,21 +167,62 @@
   const backdrop = $('.window-backdrop');
   const outside = [$('.desktop-menu'), $('.desktop-footer'), desktop, $('.skip-link')];
   let activeWindow = null, returnFocus = null, windowDrag = null;
+  let minimizedState = null, minimizePending = false;
+  const taskButton = $('#taskbar-app');
+  function refreshTaskbar() {
+    const target = activeWindow || (minimizedState && document.getElementById(minimizedState.id));
+    taskButton.hidden = !target;
+    if (!target) return;
+    $('span', taskButton).textContent = $('.window-name strong', target).textContent;
+    taskButton.classList.toggle('is-minimized', !activeWindow);
+    taskButton.setAttribute('aria-label', `${$('.window-name strong', target).textContent} 창 복원`);
+    taskButton.title = activeWindow ? '열린 창' : '최소화한 창 복원';
+  }
+  function minimizeWindow() {
+    if (!activeWindow) return;
+    minimizedState = {id:activeWindow.id, scroll:$('.window-body',activeWindow).scrollTop,
+      maximized:activeWindow.classList.contains('is-maximized'),
+      left:activeWindow.style.left,top:activeWindow.style.top,transform:activeWindow.style.transform};
+    minimizePending = true;
+    location.hash = 'desktop';
+    announce('창을 최소화했습니다. 작업 표시줄에서 다시 열 수 있습니다.');
+  }
+  taskButton.addEventListener('click', () => { if (minimizedState) location.hash = minimizedState.id; });
+  const clock = $('#taskbar-clock');
+  function tickClock() {
+    const now = new Date();
+    clock.dateTime = now.toISOString();
+    $('span',clock).textContent = now.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Seoul'});
+    $('small',clock).textContent = now.toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',timeZone:'Asia/Seoul'}).replace(/\. /g,'.').replace(/\.$/,'');
+  }
+  tickClock(); setInterval(tickClock,30000);
+  document.addEventListener('pointerdown', e => { if (!e.target.closest('.info-menu')) $('.info-menu').open=false; });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('.info-menu').open) { $('.info-menu').open=false; $('.info-menu summary').focus(); } });
+  function updateReading(win) {
+    const body = $('.window-body', win);
+    const max = body.scrollHeight - body.clientHeight;
+    const progress = max > 1 ? clamp(Math.round(body.scrollTop / max * 100), 0, 100) : 100;
+    $('.reading-track span', win).style.width = `${progress}%`;
+    $('.reading-status', win).textContent = `읽은 위치 ${progress}%`;
+  }
   function centerWindow(win) { win.style.removeProperty('left'); win.style.removeProperty('top'); win.style.removeProperty('transform'); }
   function setMaximized(win, value) {
     win.classList.toggle('is-maximized', value); centerWindow(win);
-    const button = $('.window-maximize', win); button.setAttribute('aria-pressed', String(value)); button.setAttribute('aria-label', value ? '창 원래 크기로' : '창 확대'); button.title = button.getAttribute('aria-label'); $('span', button).textContent = value ? '❐' : '□';
+    const button = $('.window-maximize', win); button.setAttribute('aria-pressed', String(value)); button.setAttribute('aria-label', value ? '창 원래 크기로' : '창 최대화'); button.title = button.getAttribute('aria-label'); updateReading(win);
   }
   function clampWindow(win, x, y) {
     const r = win.getBoundingClientRect();
     win.style.left = `${clamp(x, 8, innerWidth - r.width - 8)}px`;
-    win.style.top = `${clamp(y, 8, innerHeight - r.height - 8)}px`;
+    const barHeight = $('.desktop-footer').getBoundingClientRect().height;
+    win.style.top = `${clamp(y, 8, innerHeight - barHeight - r.height - 8)}px`;
     win.style.transform = 'none';
   }
   function updateRoute() {
     const id = location.hash.slice(1);
     const win = windows.find(el => el.id === id) || null;
     const old = activeWindow;
+    const restored = win && minimizedState?.id === win.id ? minimizedState : null;
+    if (win || (old && !minimizePending)) minimizedState = null;
     if (old && old !== win) {
       old.removeAttribute('role'); old.removeAttribute('aria-modal'); old.classList.remove('is-open', 'window-moving');
       setMaximized(old, false); windowDrag = null;
@@ -161,17 +235,25 @@
       if (!old && !returnFocus) returnFocus = document.activeElement;
       win.classList.add('is-open'); win.setAttribute('role', 'dialog'); win.setAttribute('aria-modal', 'true');
       if (old !== win) {
-        setMaximized(win, false); $('.window-body', win).scrollTop = 0;
-        requestAnimationFrame(() => { if (activeWindow === win) win.focus({preventScroll: true}); });
+        setMaximized(win, restored?.maximized || false);
+        $('.window-body', win).scrollTop = restored?.scroll || 0;
+        if (restored && !restored.maximized && restored.left && restored.top) {
+          win.style.left=restored.left; win.style.top=restored.top; win.style.transform=restored.transform;
+          clampWindow(win, win.getBoundingClientRect().left, win.getBoundingClientRect().top);
+        }
+        requestAnimationFrame(() => { if (activeWindow === win) { win.focus({preventScroll: true}); updateReading(win); } });
       }
       $$('details[open]').forEach(el => el.open = false);
     } else {
       if (old) {
-        const target = returnFocus?.isConnected && returnFocus.getBoundingClientRect().width ? returnFocus : $('.menu-group a');
+        refreshTaskbar();
+        const target = minimizePending ? taskButton : returnFocus?.isConnected && returnFocus.getBoundingClientRect().width ? returnFocus : $('.menu-group a');
         returnFocus = null; target?.focus({preventScroll: true});
       }
       if (id !== 'documents') requestAnimationFrame(restoreLayout);
     }
+    minimizePending = false;
+    refreshTaskbar();
   }
   document.addEventListener('click', e => {
     const link = e.target.closest('a[href^="#"]');
@@ -190,6 +272,11 @@
   });
   windows.forEach(win => {
     const bar = $('.window-bar', win);
+    const body = $('.window-body', win);
+    body.addEventListener('scroll', () => updateReading(win), {passive: true});
+    if ('ResizeObserver' in window) new ResizeObserver(() => updateReading(win)).observe(body);
+    $$('img', body).forEach(img => img.addEventListener('load', () => updateReading(win)));
+    $('.window-minimize', win).addEventListener('click', minimizeWindow);
     $('.window-maximize', win).addEventListener('click', () => setMaximized(win, !win.classList.contains('is-maximized')));
     bar.addEventListener('dblclick', e => { if (!e.target.closest('a,button') && activeWindow === win) setMaximized(win, !win.classList.contains('is-maximized')); });
     bar.addEventListener('pointerdown', e => {

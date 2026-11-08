@@ -1,0 +1,184 @@
+/* MUKKURI — Windows file archive / charcoal edition */
+@media screen {
+  :root {
+    --canvas:#09090a;
+    --paper:#1a1a1d;
+    --ink:#efeff0;
+    --muted:#a4a4a9;
+    --line:#3d3d42;
+    --link:#b9c9dc;
+  }
+  html, body { background:var(--canvas); color:#ededee; }
+  a:focus-visible, button:focus-visible, summary:focus-visible { outline-color:#e1e1e3; }
+  .skip-link { background:#27272a; color:#fff; }
+  .wallpaper { background:#000000; }
+  .wallpaper-frame { opacity:.72; }
+  .wallpaper-slide { filter:grayscale(1) brightness(.88) contrast(1.04); }
+  .wallpaper::after {
+    background:linear-gradient(90deg,rgba(8,8,9,.86) 0%,rgba(8,8,9,.55) 38%,rgba(8,8,9,.32) 78%),
+      linear-gradient(0deg,rgba(0,0,0,.64),transparent 38%,rgba(0,0,0,.22));
+  }
+
+  .archive-brand { text-shadow:0 1px 7px #000; }
+  .archive-brand strong { color:#f4f4f4; }
+  .archive-brand small { color:#b4b4b8; }
+  .menu-group { background:#11111380; border-color:#ffffff30; }
+  .menu-group a { color:#dedee1; }
+  .menu-group a:hover { background:#ffffff21; color:#fff; }
+  .count { background:#ffffff24; color:#e2e2e4; }
+  .archive-kicker { color:#c1c1c4; }
+  .archive-intro h1 { color:#f7f7f8; text-shadow:0 3px 26px #000b; }
+  .archive-description { color:#c6c6c9; }
+  .desk-instruction { color:#b8b8bc; border-color:#e0e0e088; }
+  .archive-watermark { opacity:.055; filter:grayscale(1); }
+  .desktop-item { color:#f5f5f6; }
+  .desktop-item:hover { background:#ffffff25; border-color:#ffffff4d; }
+  .desktop-item.is-selected, .desktop-item:focus-visible {
+    background:#c7d5e135; border-color:#d4dbe6a6; outline-color:#e7edf280;
+  }
+  .desktop-item.is-dragging { background:#c7d5e140; border-color:#dce4ef; }
+  .file-label { color:#fff; text-shadow:0 1px 4px #000, 0 2px 5px #000; }
+  .sheet-lines i { background:#83838a; }
+  .sheet-extension { color:#696970; }
+
+  .desktop-footer, body:not(:has(#documents:target)) .desktop-footer {
+    background:#141416f5; border-top-color:#ffffff28; box-shadow:0 -3px 18px #0005;
+  }
+  .info-menu summary, .taskbar-pinned, .taskbar-app, .index-link { color:#ececee; }
+  .info-menu[open] summary, .info-menu summary:hover, .taskbar-pinned:hover,
+  .taskbar-app:hover, .index-link:hover { background:#ffffff1e; }
+  .taskbar-app { background:#ffffff14; border-bottom-color:#b6bec8; }
+  .taskbar-app.is-minimized { border-bottom-color:#737b84; background:transparent; }
+  .taskbar-clock small, .scene-controls { color:#c8c8cc; }
+  .scene-controls button:hover { background:#ffffff22; }
+  .info-panel { background:#242426; color:#eeeeef; border-color:#55555a; box-shadow:0 -5px 35px #0009; }
+  .info-panel strong { color:#f7f7f7; }
+  .info-panel p, .desktop-settings p, .info-panel small { color:#b8b8bc; }
+  .info-panel nav a { color:#ededee; }
+  .info-panel nav a:hover { background:#ffffff18; }
+  .desktop-settings { border-top-color:#48484d; }
+  .desktop-settings button { color:#ededee; background:#343438; border-color:#68686f; }
+  .desktop-settings button:hover { background:#48484c; }
+
+  .window-backdrop { background:rgba(0,0,0,.40); }
+  .content-window {
+    background:#1a1a1d; color:#eeeeef; border-color:#57575d;
+    box-shadow:0 16px 65px #000b,0 2px 7px #0008;
+  }
+  .window-bar { background:#202022; color:#f2f2f4; }
+  .window-name strong { color:#f3f3f4; }
+  .window-name > span { color:#ababaf; border-color:#49494d; }
+  .window-close, .window-maximize, .window-minimize { color:#eeeef0; }
+  .window-maximize:hover, .window-minimize:hover { background:#424246; }
+  .window-close:hover { background:#c9403c; color:#fff; }
+  .window-toolbar { background:#29292c; border-color:#3c3c40; }
+  .window-up { color:#d3d3d5; }
+  .window-up:hover { background:#45454a; }
+  .toolbar-location { background:#19191b; border-color:#55555a; color:#d2d2d5; }
+  .toolbar-location a:hover { color:#fff; }
+  .toolbar-location > span:not(.current-folder) { color:#a3a3a8; }
+  .toolbar-location .current-folder { color:#f1f1f2; }
+  .toolbar-mode { color:#b5b5b9; }
+  .reading-track { background:#38383b; }
+  .reading-track > span { background:#c3c5c9; }
+  .explorer-sidebar { background:#222224; border-color:#3e3e42; }
+  .sidebar-heading { color:#aeafb3; }
+  .explorer-sidebar > a { color:#d6d6d9; }
+  .explorer-sidebar > a:hover { background:#39393c; color:#fff; }
+  .explorer-sidebar > a.is-current { background:#3c3c40; color:#fff; box-shadow:inset 3px 0 #c4c4c7; }
+  .sidebar-drive { border-color:#45454a; color:#d0d0d3; }
+  .sidebar-drive small { color:#a5a5aa; }
+  .sidebar-drive i { background:linear-gradient(90deg,#bdbdc1 40%,#4f4f53 40%); }
+  .window-body { background:#1a1a1d; color:#e1e1e3; scrollbar-color:#68686e #252528; }
+  .window-body h2, .window-body h3, .window-body strong { color:#f4f4f5; }
+  .window-body .document-path { color:#aaaab0; }
+  .document-path::before { background:#b9b9bd; }
+  .window-body .document-lead { color:#f1f1f2; }
+  .window-body a:not(.action-link) { color:#bdcde0; }
+  .window-body a:focus-visible { outline-color:#e1e1e3; }
+  .window-body .document-note { color:#b7b7bc; }
+  .window-status { background:#202022; border-color:#3c3c40; color:#b7b7bb; }
+  .window-status b { color:#d2d2d5; }
+  .status-label { color:#a7a7ad; }
+  .facts { border-color:#49494e; }
+  .facts > div, .game-row, .faq > div, .steps > li, .work-list li, .document-links { border-color:#414146; }
+  .facts dt, .text-tag, .row-number, .work-list li > span { color:#aaaab0; }
+  .facts dd { color:#e6e6e8; }
+  .steps li p, .faq dd { color:#c4c4c8; }
+  .steps > li::before { color:#aaaab0; }
+  .action-link { background:#e3e3e4; border-color:#e3e3e4; color:#171719; }
+  .action-link:hover { background:#fff; border-color:#fff; color:#101012; }
+  .product-preview, .preview-black, .preview-knock { background:#303034; border-color:#4b4b50; }
+  .preview-black { background:radial-gradient(ellipse at 55% 42%,#424247,#29292c); }
+  .preview-knock { background:radial-gradient(ellipse at 55% 42%,#414146,#2b2b2e); }
+  .preview-index { color:#c8c8cb; }
+  .product-preview::before, .product-preview::after { color:#99999d80; }
+  .product-preview figcaption { color:#d3d3d6; background:#16161999; border-color:#61616670; }
+  .photo-frame, .about-portrait { background:#29292c; border-color:#4c4c50; box-shadow:none; }
+  .photo-frame figcaption, .photo-frame figcaption span, .studio-grid figcaption, .about-portrait span { color:#bcbcc0; }
+  .studio-grid img { border-color:#4c4c50; }
+  .shop-products { background:#29292c; border-color:#47474b; }
+  .reader-heading p { color:#c3c3c7; }
+}
+
+/* Right-side focal point and a pronounced monochrome vignette. */
+@media screen {
+  .wallpaper-frame { opacity:.88; }
+  .wallpaper-slide:nth-child(n) {
+    object-position:var(--scene-position,50% 50%);
+    filter:grayscale(1) brightness(.93) contrast(1.05);
+    transition:opacity 1.15s ease-in-out;
+  }
+  .wallpaper::after {
+    background:
+      radial-gradient(ellipse 52% 72% at 72% 48%,rgba(0,0,0,.02) 0%,rgba(0,0,0,.13) 42%,rgba(0,0,0,.78) 83%,#000000 100%),
+      linear-gradient(90deg,rgba(0,0,0,.78) 0%,rgba(0,0,0,.42) 34%,rgba(0,0,0,.05) 64%,rgba(0,0,0,.16) 100%),
+      linear-gradient(0deg,rgba(0,0,0,.48),transparent 37%,rgba(0,0,0,.22));
+  }
+}
+@media screen and (max-width:600px) {
+  .desktop { height:max(670px,100svh); min-height:670px; }
+  .scatter { top:125px; }
+  .wallpaper::after {
+    background:radial-gradient(ellipse 78% 66% at 54% 44%,rgba(0,0,0,.16) 5%,rgba(0,0,0,.57) 65%,#000000 100%);
+  }
+}
+/* A soft black blend keeps portrait photographs and complete artwork visible. */
+@media screen {
+  .wallpaper-slide .wallpaper-base {
+    position:absolute; inset:-30px; background-image:var(--scene-background,var(--scene-fill));
+    background-size:cover; background-position:center; background-repeat:no-repeat;
+  }
+  .wallpaper-slide .wallpaper-stage {
+    position:absolute; inset:0; display:flex; align-items:center;
+    justify-content:flex-end; padding:0 5vw 0 0;
+  }
+  .wallpaper-slide .wallpaper-image {
+    display:block; width:auto; height:auto; max-width:100%; max-height:100%; object-fit:contain;
+    -webkit-mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent),
+      linear-gradient(to bottom,transparent,#000 7%,#000 93%,transparent);
+    -webkit-mask-composite:source-in;
+    mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent),
+      linear-gradient(to bottom,transparent,#000 7%,#000 93%,transparent);
+    mask-composite:intersect;
+  }
+  .wallpaper-cover .wallpaper-base { display:none; }
+  .wallpaper-cover .wallpaper-stage { display:block; padding:0; }
+  .wallpaper-cover .wallpaper-image {
+    width:100%; height:100%; max-width:none; max-height:none; object-fit:cover;
+    object-position:var(--scene-position,50% 50%); -webkit-mask-image:none; mask-image:none;
+  }
+}
+@media screen and (max-width:600px) {
+  .wallpaper-contained .wallpaper-stage { justify-content:center; padding:0; }
+  .wallpaper-cover .wallpaper-image { object-position:var(--mobile-position,50% 50%); }
+}
+
+/* Fade the new photograph over the previous one, including on devices whose
+   global motion setting would otherwise turn the wallpaper transition off. */
+@media screen {
+  .wallpaper-slide:nth-child(n) { z-index:0; visibility:hidden; transition:opacity 1.5s ease-in-out !important; }
+  .wallpaper-slide.is-active { z-index:1; visibility:visible; }
+  .wallpaper-slide.is-incoming { z-index:2; visibility:visible; }
+  .wallpaper-slide.is-resetting { transition:none !important; }
+}

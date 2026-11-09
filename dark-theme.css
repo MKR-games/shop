@@ -121,64 +121,51 @@
   .reader-heading p { color:#c3c3c7; }
 }
 
-/* Right-side focal point and a pronounced monochrome vignette. */
+/* Frame each photograph around the visible right-hand side of the desktop. */
 @media screen {
+  .wallpaper { --wallpaper-left:33%; }
   .wallpaper-frame { opacity:.88; }
   .wallpaper-slide:nth-child(n) {
-    object-position:var(--scene-position,50% 50%);
+    z-index:0; visibility:hidden; background:#000000;
     filter:grayscale(1) brightness(.93) contrast(1.05);
-    transition:opacity 1.15s ease-in-out;
+    transition:opacity 1.5s ease-in-out !important;
   }
-  .wallpaper::after {
-    background:
-      radial-gradient(ellipse 52% 72% at 72% 48%,rgba(0,0,0,.02) 0%,rgba(0,0,0,.13) 42%,rgba(0,0,0,.78) 83%,#000000 100%),
-      linear-gradient(90deg,rgba(0,0,0,.78) 0%,rgba(0,0,0,.42) 34%,rgba(0,0,0,.05) 64%,rgba(0,0,0,.16) 100%),
-      linear-gradient(0deg,rgba(0,0,0,.48),transparent 37%,rgba(0,0,0,.22));
-  }
-}
-@media screen and (max-width:600px) {
-  .desktop { height:max(670px,100svh); min-height:670px; }
-  .scatter { top:125px; }
-  .wallpaper::after {
-    background:radial-gradient(ellipse 78% 66% at 54% 44%,rgba(0,0,0,.16) 5%,rgba(0,0,0,.57) 65%,#000000 100%);
-  }
-}
-/* A soft black blend keeps portrait photographs and complete artwork visible. */
-@media screen {
-  .wallpaper-slide .wallpaper-base {
-    position:absolute; inset:-30px; background-image:var(--scene-background,var(--scene-fill));
-    background-size:cover; background-position:center; background-repeat:no-repeat;
-  }
-  .wallpaper-slide .wallpaper-stage {
-    position:absolute; inset:0; display:flex; align-items:center;
-    justify-content:flex-end; padding:0 5vw 0 0;
-  }
-  .wallpaper-slide .wallpaper-image {
-    display:block; width:auto; height:auto; max-width:100%; max-height:100%; object-fit:contain;
-    -webkit-mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent),
-      linear-gradient(to bottom,transparent,#000 7%,#000 93%,transparent);
-    -webkit-mask-composite:source-in;
-    mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent),
-      linear-gradient(to bottom,transparent,#000 7%,#000 93%,transparent);
-    mask-composite:intersect;
-  }
-  .wallpaper-cover .wallpaper-base { display:none; }
-  .wallpaper-cover .wallpaper-stage { display:block; padding:0; }
-  .wallpaper-cover .wallpaper-image {
-    width:100%; height:100%; max-width:none; max-height:none; object-fit:cover;
-    object-position:var(--scene-position,50% 50%); -webkit-mask-image:none; mask-image:none;
-  }
-}
-@media screen and (max-width:600px) {
-  .wallpaper-contained .wallpaper-stage { justify-content:center; padding:0; }
-  .wallpaper-cover .wallpaper-image { object-position:var(--mobile-position,50% 50%); }
-}
-
-/* Fade the new photograph over the previous one, including on devices whose
-   global motion setting would otherwise turn the wallpaper transition off. */
-@media screen {
-  .wallpaper-slide:nth-child(n) { z-index:0; visibility:hidden; transition:opacity 1.5s ease-in-out !important; }
   .wallpaper-slide.is-active { z-index:1; visibility:visible; }
   .wallpaper-slide.is-incoming { z-index:2; visibility:visible; }
   .wallpaper-slide.is-resetting { transition:none !important; }
+  .wallpaper-slide .wallpaper-stage { position:absolute; inset:0 0 0 var(--wallpaper-left); display:block; padding:0; }
+  .wallpaper-slide .wallpaper-image {
+    position:absolute; inset:0; display:block; width:100%; height:100%;
+    max-width:none; max-height:none; object-fit:cover;
+    object-position:var(--scene-position,50% 50%);
+    -webkit-mask:none; mask:none;
+  }
+  .wallpaper::after {
+    background:
+      linear-gradient(90deg, #000000 0%, #000000 var(--wallpaper-left),
+        rgba(0,0,0,.97) calc(var(--wallpaper-left) + 5%),
+        rgba(0,0,0,.74) calc(var(--wallpaper-left) + 12%),
+        rgba(0,0,0,.36) calc(var(--wallpaper-left) + 20%),
+        rgba(0,0,0,.08) calc(var(--wallpaper-left) + 28%),
+        rgba(0,0,0,0) calc(var(--wallpaper-left) + 35%)),
+      radial-gradient(circle 84vmin at 76% 48%,
+        rgba(0,0,0,0) 0%, rgba(0,0,0,.03) 16%, rgba(0,0,0,.10) 32%,
+        rgba(0,0,0,.23) 48%, rgba(0,0,0,.42) 64%, rgba(0,0,0,.65) 80%,
+        rgba(0,0,0,.86) 96%, #000000 112%);
+  }
+}
+@media screen and (max-width:1000px) {
+  .wallpaper { --wallpaper-left:20%; }
+}
+@media screen and (max-width:600px) {
+  .wallpaper { --wallpaper-left:0%; }
+  .desktop { height:max(670px,100svh); min-height:670px; }
+  .scatter { top:125px; }
+  .wallpaper-slide .wallpaper-image { object-position:var(--mobile-position,50% 50%); }
+  .wallpaper::after {
+    background:radial-gradient(circle 110vmin at 72% 48%,
+      rgba(0,0,0,0) 0%, rgba(0,0,0,.03) 16%, rgba(0,0,0,.10) 32%,
+      rgba(0,0,0,.23) 48%, rgba(0,0,0,.42) 64%, rgba(0,0,0,.65) 80%,
+      rgba(0,0,0,.86) 96%, #000000 112%);
+  }
 }
